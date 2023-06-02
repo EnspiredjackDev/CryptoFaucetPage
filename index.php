@@ -13,7 +13,7 @@ $db_pass = 'PASSWORD'; // Database password
 $db_table = 'TABLE';  // This should be your table where you store the user's info
 
 // RPC configuration
-$rpc_url = 'URL';  // RPC URL (e.g. 127.0.0.1)
+$rpc_url = 'URL';  // RPC URL with port (e.g. http://127.0.0.1:33700/)
 $rpc_user = 'USERNAME';  // RPC username
 $rpc_pass = 'PASSWORD';  // RPC password
 
