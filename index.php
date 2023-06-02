@@ -321,11 +321,18 @@ else {
         margin-top: 20px; 
         margin-bottom: 20px;
 		}
+        #logo {
+        display: block;
+        max-width: 200px; 
+        height: auto; 
+        margin: 0 auto;
+    }
     </style>
 </head>
 <body>
 	<?php if (!$processed): ?>
     <form method="POST" action="">
+        <img src="logo.png" id="logo">
         <h1>Katkoyn Faucet</h1>
         <p>Claim 0.875 - 3.75 KAT Every 24 Hours!</p>
         <input type="text" name="crypto_address" placeholder="Enter your Katkoyn address">
