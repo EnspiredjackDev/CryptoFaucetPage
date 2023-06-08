@@ -14,7 +14,7 @@
 - URL Shortener (optional)
 
 ## Node setup  
-1. Navigate to the default data directory, `C:\Users\username\AppData\Roaming\Coinname\` by default on windows or `/home/username/.bitcoin/` on linux.  
+1. Navigate to the default data directory, `C:\Users\username\AppData\Roaming\Coinname\` by default on windows or `/home/username/.coinname/` on linux.  
 2. create a file called `coinname.conf` in the directory.  
 3. make sure it includes: 
 ```
