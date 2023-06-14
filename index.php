@@ -25,6 +25,9 @@ $siteKey = "SITEKEY"; //CAPTCHA V2 site key
 $api_token = 'API_TOKEN'; //API token to birdURLs / any other shortener
 $site_location = 'SITE_LOCATION'; //The webpage loction in the server (e.g. https://example.com/faucet/ or https://example.com/faucet/coin.php)
 
+// Price configuration
+$currency = 'COINGECKO_API_COIN_ID';
+
 //Do not change
 $processed = false;
 $message = '';
@@ -51,6 +54,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		$ip = $_SERVER['REMOTE_ADDR'];
 	}
 
+    // Check if the crypto_address starts with what its meant to
+	$first_char = substr($crypto_address, 0, 1);
+	$first_four_chars = substr($crypto_address, 0, 4);
+	$first_eight_chars = substr($crypto_address, 0, 8);
+
+	if (!in_array($first_char, ['L', 'M']) && $first_four_chars !== 'ltc1' && $first_eight_chars !== 'ltcmweb1') {
+		$message = "The crypto address must start with 'L', 'M', 'ltc1' or 'ltcmweb1'. Please try again.";
+		$processed = true;
+	}
 
     // Check if the user has verified CAPTCHA within the last 24 hours
     $stmt = $db->prepare("SELECT timestamp FROM {$db_table} WHERE ip = ? AND timestamp > NOW() - INTERVAL 24 HOUR"); //Change this if the user can use the faucet more than once every 24 hrs
@@ -61,6 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $message = 'You have already verified CAPTCHA within the last 24 hours.';
         $processed = true;
     }
+
+    if ($processed === false){
 
     $url = 'https://www.google.com/recaptcha/api/siteverify';
     $data = array(
@@ -130,73 +144,92 @@ else {
         $crypto_address = $row['crypto_address'];
         $country = $row['country'];  // Get the country
 
+        // Initiate the CURL session
+		$ch = curl_init();
+		// Set the URL
+		curl_setopt($ch, CURLOPT_URL,"https://api.coingecko.com/api/v3/simple/price?ids={$currency}&vs_currencies=usd");
+		// Remove header (0 = yes, 1 = no)
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		// Return the content of the call
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		// Execute the CURL session
+		$output = curl_exec($ch);
+		// Close CURL session
+		curl_close($ch);
+    
+		// Now let's convert the JSON output to a PHP array
+		$output_array = json_decode($output, true);
+
+		// Get the USD price of the coin
+		$usd_price = $output_array[$currency]['usd'];
+
         // Determine the payment amount based on the country. FORMAT: CPM / 1000 / pricePerCoin Add more cases as needed
         switch ($country) {
     case 'Monaco':
-        $custom_amount = 15.00 / 1000 / 0.004;  // Amount for Monaco
+        $custom_amount = 15.00 / 1000 / $usd_price;  // Amount for Monaco
         break;
     case 'Faroe Islands':
-        $custom_amount = 14.00 / 1000 / 0.004;  // Amount for Faroe Islands
+        $custom_amount = 14.00 / 1000 / $usd_price;  // Amount for Faroe Islands
         break;
     case 'Liechtenstein':
-        $custom_amount = 14.00 / 1000 / 0.004;  // Amount for Liechtenstein
+        $custom_amount = 14.00 / 1000 / $usd_price;  // Amount for Liechtenstein
         break;
     case 'United States':
-        $custom_amount = 12.00 / 1000 / 0.004;  // Amount for United States
+        $custom_amount = 12.00 / 1000 / $usd_price;  // Amount for United States
         break;
     case 'United Kingdom':
-        $custom_amount = 10.00 / 1000 / 0.004;  // Amount for United Kingdom
+        $custom_amount = 10.00 / 1000 / $usd_price;  // Amount for United Kingdom
         break;
     case 'Canada':
-        $custom_amount = 9.00 / 1000 / 0.004;  // Amount for Canada
+        $custom_amount = 9.00 / 1000 / $usd_price;  // Amount for Canada
         break;
     case 'Australia':
-        $custom_amount = 8.00 / 1000 / 0.004;  // Amount for Australia
+        $custom_amount = 8.00 / 1000 / $usd_price;  // Amount for Australia
         break;
     case 'Switzerland':
-        $custom_amount = 7.00 / 1000 / 0.004;  // Amount for Switzerland
+        $custom_amount = 7.00 / 1000 / $usd_price;  // Amount for Switzerland
         break;
     case 'Sweden':
-        $custom_amount = 7.00 / 1000 / 0.004;  // Amount for Sweden
+        $custom_amount = 7.00 / 1000 / $usd_price;  // Amount for Sweden
         break;
     case 'Finland':
-        $custom_amount = 7.00 / 1000 / 0.004;  // Amount for Finland
+        $custom_amount = 7.00 / 1000 / $usd_price;  // Amount for Finland
         break;
     case 'Norway':
-        $custom_amount = 7.00 / 1000 / 0.004;  // Amount for Norway
+        $custom_amount = 7.00 / 1000 / $usd_price;  // Amount for Norway
         break;
     case 'New Zealand':
-        $custom_amount = 7.00 / 1000 / 0.004;  // Amount for New Zealand
+        $custom_amount = 7.00 / 1000 / $usd_price;  // Amount for New Zealand
         break;
     case 'Germany':
-        $custom_amount = 6.00 / 1000 / 0.004;  // Amount for Germany
+        $custom_amount = 6.00 / 1000 / $usd_price;  // Amount for Germany
         break;
     case 'France':
-        $custom_amount = 6.00 / 1000 / 0.004;  // Amount for France
+        $custom_amount = 6.00 / 1000 / $usd_price;  // Amount for France
         break;
     case 'Netherlands':
-        $custom_amount = 6.00 / 1000 / 0.004;  // Amount for Netherlands
+        $custom_amount = 6.00 / 1000 / $usd_price;  // Amount for Netherlands
         break;
     case 'Austria':
-        $custom_amount = 6.00 / 1000 / 0.004;  // Amount for Austria
+        $custom_amount = 6.00 / 1000 / $usd_price;  // Amount for Austria
         break;
     case 'Italy':
-        $custom_amount = 6.00 / 1000 / 0.004;  // Amount for Italy
+        $custom_amount = 6.00 / 1000 / $usd_price;  // Amount for Italy
         break;
     case 'Spain':
-        $custom_amount = 6.00 / 1000 / 0.004;  // Amount for Spain
+        $custom_amount = 6.00 / 1000 / $usd_price;  // Amount for Spain
         break;
     case 'Denmark':
-        $custom_amount = 6.00 / 1000 / 0.004;  // Amount for Denmark
+        $custom_amount = 6.00 / 1000 / $usd_price;  // Amount for Denmark
         break;
     case 'Singapore':
-        $custom_amount = 5.00 / 1000 / 0.004; // Amount for Singapore
+        $custom_amount = 5.00 / 1000 / $usd_price; // Amount for Singapore
         break;
 	case 'Russia':
         $custom_amount = 0; // Amount for Russia
         break;
     default:
-        $custom_amount = 3.50 / 1000 / 0.004;  // Default amount
+        $custom_amount = 3.50 / 1000 / $usd_price;  // Default amount
         break;
 }
 
@@ -223,7 +256,7 @@ else {
         
         // Check the response
         if ($result === false) {
-            $message = 'Error: Could not send Katkoyn. ' . curl_error($ch);
+            $message = 'Error: Could not send Katkoyn.' . curl_error($ch);
 			$processed = true;
         } else {
             $response = json_decode($result);
@@ -249,7 +282,7 @@ else {
 		$processed = true;
     }
 }
-
+};
 }
 ?>
 
