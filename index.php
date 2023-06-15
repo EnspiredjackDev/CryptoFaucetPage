@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $message = 'CAPTCHA verification failed. Please try again.';
     $processed = true;
 }
-
+};
 }
 else {
     if(isset($_GET['id'])) {
@@ -233,8 +233,9 @@ else {
         break;
 }
 
-
-
+        // Make sure its under 8 decimal places
+		$custom_amount = number_format($custom_amount, 8, '.', '');
+		
         // Set up the request data
         $post_data = array(
             'jsonrpc' => '1.0', 
@@ -282,7 +283,7 @@ else {
 		$processed = true;
     }
 }
-};
+
 }
 ?>
 
