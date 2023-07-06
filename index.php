@@ -32,6 +32,7 @@ $currency = 'COINGECKO_API_COIN_ID';
 $processed = false;
 $message = '';
 $custom_amount = 0;
+$new_unique_id = 0;
 
 // Create a new database connection
 $db = new mysqli($db_host, $db_user, $db_pass, $db_name, $db_port);
@@ -98,8 +99,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($response->success) {
     // CAPTCHA verification succeeded
 
-    // Create a unique identifier
-    $unique_id = uniqid();
+    // Query the database for a valid unused unique_id for the given IP
+	$stmt = $db->prepare("SELECT unique_id FROM {$db_table} WHERE ip = ? AND used = 0 LIMIT 1");
+	$stmt->bind_param('s', $ip);
+	$stmt->execute();
+	$result = $stmt->get_result();
+	if ($result->num_rows > 0) {
+		$row = $result->fetch_assoc();
+		$unique_id = $row['unique_id'];
+
+        // Update the crypto address to the one the user inputted 
+		$stmt = $db->prepare("UPDATE {$db_table} SET crypto_address = ?, timestamp = NOW() WHERE unique_id = ?");
+		$stmt->bind_param('ss', $crypto_address, $unique_id);
+		$stmt->execute();
+	} else {
+		// Create a unique identifier
+		$unique_id = uniqid();
+		$new_unique_id = 1;
+	}
 
     // Get the user's country information
     $ip_info = file_get_contents("http://ip-api.com/json/{$ip}");
@@ -113,13 +130,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // To skip the shortlink comment out above and uncomment below ($site_location is still required so the button to submit functions)
     //$result = '{$site_location}?id={$unique_id}';
     if($result) {
-        //Log the IP, the current timestamp, unique id and the crypto address
-        $stmt = $db->prepare("INSERT INTO {$db_table} (ip, timestamp, unique_id, crypto_address, country) VALUES (?, NOW(), ?, ?, ?)");
-        $stmt->bind_param('ssss', $ip, $unique_id, $crypto_address, $country);
-        $stmt->execute();
+        if($new_unique_id !== 0){
+			//Log the IP, the current timestamp, unique id and the crypto address
+			$stmt = $db->prepare("INSERT INTO {$db_table} (ip, timestamp, unique_id, crypto_address, country) VALUES (?, NOW(), ?, ?, ?)");
+			$stmt->bind_param('ssss', $ip, $unique_id, $crypto_address, $country);
+			$stmt->execute();
 
-        header('Location: ' . $result);
-        exit();
+			header('Location: ' . $result);
+			exit();
+		} else {
+			header('Location: ' . $result);
+			exit();
+		}
     } else {
         $message = 'Error: Could not generate shortened URL';
 		$processed = true;
@@ -241,7 +263,7 @@ else {
             'jsonrpc' => '1.0', 
             'id' => 'curltest',
             'method' => 'sendtoaddress',
-            'params' => array($crypto_address, $custom_amount, 'donation', 'user')
+            'params' => array($crypto_address, $custom_amount, 'Facuet', 'user')
         );
 
         // Set up cURL

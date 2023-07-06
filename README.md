@@ -48,7 +48,7 @@ CREATE TABLE your_schema_name.your_table_name (
 3. Done, put the credentials, port, schema and table name into the php script.
 
 ## URL Shortener setup (optional)
-### If you don't want the shortlink feature then please read the note on line 113
+### If you don't want the shortlink feature then please read the note on line 130
 - Any Shortener is supported if the syntax is similar to this:`?api={$api_token}&url={$long_url}&format=text` for plaintext response.  
 - Get the site location from your webserver, eg, `https://https://example.com/faucet/` or `https://example.com/faucet/coin.php` and set it in the script.  
 - Be sure to set the shortlink service API key.
@@ -57,12 +57,12 @@ CREATE TABLE your_schema_name.your_table_name (
 #### Coingecko API ids for coins
 A coin's ID can be found on the coin page for example, [bitcoin's] (https://www.coingecko.com/en/coins/bitcoin) would be `bitcoin`, you can find it on the right side of the page labelled `API ID`  
 #### The first letters of an address
-To try to prevent users from using the wrong address, on line 62 there is a check to make sure that the address starts with the correct letters, currently it is set to litecoin's, change it to whatever your currency has.
+To try to prevent users from using the wrong address, on line 63 there is a check to make sure that the address starts with the correct letters, currently it is set to litecoin's, change it to whatever your currency has.
 #### Changing the time between uses
-On line 56, `NOW() - INTERVAL 24 HOUR")` can be changed to any number, but to make it more readable use:     `NOW() - INTERVAL 24 MINUTE")` for minutes or `NOW() - INTERVAL 24 DAY")` for days.
+On line 69, `NOW() - INTERVAL 24 HOUR")` can be changed to any number, but to make it more readable use:     `NOW() - INTERVAL 24 MINUTE")` for minutes or `NOW() - INTERVAL 24 DAY")` for days.
 #### Changing the payment amount per country
-Lines 134-200 are setup to deal with country by country payments, the numbers are setup like: `CPM / 1000 / pricePerCoin` where cpm is how much the shortlink service pays you, 1000 stays the same and pricePerCoin is at what sell rate you want to sell the coin to users.
+Lines 189-256 are setup to deal with country by country payments, the numbers are setup like: `CPM / 1000 / pricePerCoin` where cpm is how much the shortlink service pays you, 1000 stays the same and pricePerCoin is at what sell rate you want to sell the coin to users.
 #### Space for ad
-Lines 338-340 is space for an iframe ad with some margin away from the submit box.
+Line 402 is space for an iframe ad with some margin away from the submit box.
 #### Footer
 Feel free to change the footer text, I just wanted it to look a bit professional but please leave the html comment under it.
