@@ -55,7 +55,7 @@ CREATE TABLE your_schema_name.your_table_name (
 
 ## Other setup and config 
 #### Coingecko API ids for coins
-A coin's ID can be found on the coin page for example, [bitcoin's] (https://www.coingecko.com/en/coins/bitcoin) would be `bitcoin`, you can find it on the right side of the page labelled `API ID`  
+A coin's ID can be found on the coin page for example, [bitcoin's](https://www.coingecko.com/en/coins/bitcoin) would be `bitcoin`, you can find it on the right side of the page labelled `API ID`  
 #### The first letters of an address
 To try to prevent users from using the wrong address, on line 63 there is a check to make sure that the address starts with the correct letters, currently it is set to litecoin's, change it to whatever your currency has.
 #### Changing the time between uses
